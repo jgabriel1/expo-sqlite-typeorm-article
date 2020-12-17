@@ -31,7 +31,14 @@ export class TodosRepository {
 
   public async toggle(id: number): Promise<void> {
     await this.ormRepository.query(
-      'UPDATE todos SET status = ((status | 1) - (status & 1)) WHERE id = ?;',
+      `
+      UPDATE
+        todos
+      SET
+        is_toggled = ((is_toggled | 1) - (is_toggled & 1))
+      WHERE
+        id = ?;
+      `,
       [id],
     );
   }
