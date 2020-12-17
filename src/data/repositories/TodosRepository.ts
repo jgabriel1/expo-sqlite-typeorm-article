@@ -12,6 +12,12 @@ export class TodosRepository {
     this.ormRepository = connection.getRepository(TodoModel);
   }
 
+  public async getAll(): Promise<TodoModel[]> {
+    const todos = await this.ormRepository.find();
+
+    return todos;
+  }
+
   public async create({ text }: ICreateTodoData): Promise<TodoModel> {
     const todo = this.ormRepository.create({
       text,
