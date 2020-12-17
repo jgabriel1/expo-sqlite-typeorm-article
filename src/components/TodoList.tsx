@@ -51,14 +51,11 @@ const TodoList: React.FC = () => {
       <View style={styles.todosContainer}>
         {todos.map((todo, index) => (
           <TouchableOpacity
+            key={String(index)}
             onPress={() => handleToggleTodo(index)}
             onLongPress={() => handleDeleteTodo(index)}
           >
-            <Todo
-              key={String(index)}
-              text={todo.text}
-              isToggled={todo.is_toggled}
-            />
+            <Todo text={todo.text} isToggled={todo.is_toggled} />
           </TouchableOpacity>
         ))}
       </View>
