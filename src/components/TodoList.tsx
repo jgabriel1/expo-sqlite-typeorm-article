@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -6,6 +6,8 @@ import {
   Button,
   TouchableOpacity,
 } from 'react-native';
+
+import { useDatabaseConnection } from '../data/connection';
 
 import Todo from './Todo';
 
@@ -16,26 +18,46 @@ interface TodoItem {
 }
 
 const TodoList: React.FC = () => {
+  const { todosRepository } = useDatabaseConnection();
+
   const [newTodo, setNewTodo] = useState('');
   const [todos, setTodos] = useState<TodoItem[]>([]);
 
   const handleCreateTodo = useCallback(async () => {
-    setTodos(current => [...current, { text: newTodo, is_toggled: false }]);
+    const todo = await todosRepository.create({ text: newTodo });
+
+    setTodos(current => [...current, todo]);
 
     setNewTodo('');
-  }, [newTodo]);
+  }, [newTodo, todosRepository]);
 
-  const handleToggleTodo = useCallback(async (index: number) => {
-    setTodos(current =>
-      current.map((todo, i) => {
-        return index === i ? { ...todo, is_toggled: !todo.is_toggled } : todo;
-      }),
-    );
-  }, []);
+  const handleToggleTodo = useCallback(
+    async (id: number) => {
+      await todosRepository.toggle(id);
 
-  const handleDeleteTodo = useCallback(async (index: number) => {
-    setTodos(current => current.filter((_, i) => i !== index));
-  }, []);
+      setTodos(current =>
+        current.map(todo => {
+          return todo.id === id
+            ? { ...todo, is_toggled: !todo.is_toggled }
+            : todo;
+        }),
+      );
+    },
+    [todosRepository],
+  );
+
+  const handleDeleteTodo = useCallback(
+    async (id: number) => {
+      await todosRepository.delete(id);
+
+      setTodos(current => current.filter(todo => todo.id !== id));
+    },
+    [todosRepository],
+  );
+
+  useEffect(() => {
+    todosRepository.getAll().then(setTodos);
+  }, [todosRepository]);
 
   return (
     <View style={styles.container}>
@@ -49,11 +71,11 @@ const TodoList: React.FC = () => {
       </View>
 
       <View style={styles.todosContainer}>
-        {todos.map((todo, index) => (
+        {todos.map(todo => (
           <TouchableOpacity
-            key={String(index)}
-            onPress={() => handleToggleTodo(index)}
-            onLongPress={() => handleDeleteTodo(index)}
+            key={String(todo.id)}
+            onPress={() => handleToggleTodo(todo.id)}
+            onLongPress={() => handleDeleteTodo(todo.id)}
           >
             <Todo text={todo.text} isToggled={todo.is_toggled} />
           </TouchableOpacity>
