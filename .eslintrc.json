@@ -44,6 +44,7 @@
     "react/style-prop-object": "off",
     "global-require": "off",
     "no-unused-expressions": "off",
+    "no-use-before-define": "off",
     "react/jsx-filename-extension": [
       1,
       {
