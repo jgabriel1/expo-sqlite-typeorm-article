@@ -26,7 +26,7 @@ export const DatabaseConnectionProvider: React.FC = ({ children }) => {
   const connect = useCallback(async () => {
     const createdConnection = await createConnection({
       type: 'expo',
-      database: 'todos.db',
+      database: 'todos_example_article.db',
       driver: require('expo-sqlite'),
       entities: [TodoModel],
 
